@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ windows-latest, macos-latest, macos-13, ubuntu-latest ]
+        os: [ windows-latest, macos-latest ]
 
     steps:
     - name: Check out
@@ -28,37 +28,15 @@ jobs:
         pip install -r requirements.txt
         pip install pyinstaller
 
-    - name: Build
-      if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
-      run: pyinstaller build.spec
-
     - name: Build (macOS)
-      if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+      if: matrix.os == 'macos-latest'
       run: pyinstaller build-mac.spec
-
-    - name: Zip (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        cd dist
-        7z a -r BangumiRenamer_windows.zip *
 
     - name: Zip (macOS-arm)
       if: matrix.os == 'macos-latest'
       run: |
         cd dist
         zip -9 -r BangumiRenamer_mac_arm.zip ./BangumiRenamer.app
-
-    - name: Zip (macOS-x86)
-      if: matrix.os == 'macos-13'
-      run: |
-        cd dist
-        zip -9 -r BangumiRenamer_mac_x86.zip ./BangumiRenamer.app
-
-    - name: Zip (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        cd dist
-        zip -9 -r BangumiRenamer_linux.zip ./*       
 
     - name: Upload
       uses: actions/upload-artifact@v4
