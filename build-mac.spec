@@ -32,20 +32,21 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['image\\icon.ico'],
 )
+
 coll = COLLECT(
     exe,
-    a.binaries,
     a.datas,
     strip=False,
     upx=True,
     upx_exclude=[],
     name='BangumiRenamer',
 )
+
 app = BUNDLE(
     coll,
     name='BangumiRenamer.app',
     icon='image/icon.icns',
     bundle_identifier=None,
+    version='2.1.0',
 )
