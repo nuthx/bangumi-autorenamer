@@ -1,12 +1,10 @@
-from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QLabel, QVBoxLayout, QHBoxLayout, QFrame, QMainWindow, QWidget
-from qfluentwidgets import PushButton, FluentIcon, PrimaryPushButton, EditableComboBox, SingleDirectionScrollArea, \
-    SettingCard, GroupHeaderCardWidget, SearchLineEdit, ComboBox, IconWidget, InfoBarIcon, BodyLabel, CardWidget, \
-    CaptionLabel, TransparentToolButton, SwitchButton, IndicatorPosition, ExpandGroupSettingCard, LineEdit
+from PySide6.QtWidgets import QLabel, QVBoxLayout, QHBoxLayout, QFrame
+from qfluentwidgets import (PushButton, FluentIcon, PrimaryPushButton, EditableComboBox, GroupHeaderCardWidget,
+                            ComboBox, InfoBarIcon, LineEdit)
 
 from src.module.utils import getResource
-from src.module.config import posterFolder, logFolder
+from src.module.config import posterFolder
 
 
 class SettingWindow(object):
@@ -21,27 +19,37 @@ class SettingWindow(object):
         this_window.resize(850, -1)
         this_window.setFixedSize(self.size())  # 禁止拉伸窗口
 
-        # 命名格式
+        # 按钮
+        self.applyButton = PrimaryPushButton("保存", self)
+        self.applyButton.setFixedWidth(120)
+        self.cancelButton = PushButton("取消", self)
+        self.cancelButton.setFixedWidth(120)
 
-        self.renameTypeTitle = QLabel("命名格式")
-        self.renameTypeInfo = QLabel("变量必须包含花括号；单斜杠用于文件夹嵌套")
+        self.buttonLayout = QHBoxLayout()
+        self.buttonLayout.setSpacing(12)
+        self.buttonLayout.addStretch(0)
+        self.buttonLayout.addWidget(self.applyButton)
+        self.buttonLayout.addWidget(self.cancelButton)
+        self.buttonLayout.addStretch(0)
 
-        self.renameType = EditableComboBox(self)
-        self.renameType.setMinimumWidth(480)
-        self.renameType.setMaximumWidth(400)
-        self.renameType.addItems(["{fs_name_cn}/[{typecode}] [{release}] {name_jp}",
-                                  "{fs_name_cn}/[{score}] [{typecode}] [{release}] {name_jp}",
-                                  "{type}/{name} ({name_jp})",
-                                  "[{release}] {name_cn} ({release_week})"])
+        # 叠叠乐
+        layout = QVBoxLayout()
+        layout.setSpacing(14)
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.addWidget(self.name_variable_card())
+        self.general_setting = GeneralSetting()
+        layout.addWidget(self.general_setting)
+        self.ai_setting = AISetting()
+        layout.addWidget(self.ai_setting)
+        layout.addLayout(self.buttonLayout)
 
-        self.renameTypeCard = self.settingCard(self.renameTypeTitle, self.renameTypeInfo, self.renameType, "half")
+        this_window.setLayout(layout)
 
-        # 命名说明
-
-        self.t1 = self.tutorialCard("name_jp", "日文名")
-        self.t2 = self.tutorialCard("name_cn", "中文名")
-        self.t3 = self.tutorialCard("fs_name_cn", "首季中文名")
-        self.t4 = self.tutorialCard("bangumi_id", "Bangumi ID")
+    def name_variable_card(self):
+        self.t1 = self.name_variable_block("name_jp", "日文名")
+        self.t2 = self.name_variable_block("name_cn", "中文名")
+        self.t3 = self.name_variable_block("fs_name_cn", "首季中文名")
+        self.t4 = self.name_variable_block("bangumi_id", "Bangumi ID")
 
         self.f1 = QHBoxLayout()
         self.f1.setSpacing(12)
@@ -51,10 +59,10 @@ class SettingWindow(object):
         self.f1.addWidget(self.t3)
         self.f1.addWidget(self.t4)
 
-        self.t5 = self.tutorialCard("type", "动画类型")
-        self.t6 = self.tutorialCard("typecode", "类型编号")
-        self.t7 = self.tutorialCard("episodes", "当前评分")
-        self.t8 = self.tutorialCard("score", "章节数量")
+        self.t5 = self.name_variable_block("type", "动画类型")
+        self.t6 = self.name_variable_block("typecode", "类型编号")
+        self.t7 = self.name_variable_block("episodes", "当前评分")
+        self.t8 = self.name_variable_block("score", "章节数量")
 
         self.f2 = QHBoxLayout()
         self.f2.setSpacing(12)
@@ -64,10 +72,10 @@ class SettingWindow(object):
         self.f2.addWidget(self.t7)
         self.f2.addWidget(self.t8)
 
-        self.t9 = self.tutorialCard("release", "放送开始日期")
-        self.t10 = self.tutorialCard("release_end", "放送结束日期")
-        self.t11 = self.tutorialCard("release_week", "放送星期")
-        self.t12 = self.tutorialCard("release_week", "放送星期")
+        self.t9 = self.name_variable_block("release", "放送开始日期")
+        self.t10 = self.name_variable_block("release_end", "放送结束日期")
+        self.t11 = self.name_variable_block("release_week", "放送星期")
+        self.t12 = self.name_variable_block("release_week", "放送星期")
 
         self.f3 = QHBoxLayout()
         self.f3.setSpacing(12)
@@ -86,119 +94,12 @@ class SettingWindow(object):
         self.renameTutorialLayout.addLayout(self.f3)
 
         self.renameTutorialCard = QFrame()
-        self.renameTutorialCard.setObjectName("cardFrameHalf2")
+        self.renameTutorialCard.setObjectName("cardFrameFull")
         self.renameTutorialCard.setLayout(self.renameTutorialLayout)
 
-        # 日期格式
+        return self.renameTutorialCard
 
-        self.dateTypeTitle = QLabel("日期格式")
-
-        self.dateTypeInfo = QLabel("指定 release_date 的显示格式，")
-        self.dateTypeInfo.setObjectName("cardInfoLabel")
-
-        self.dateTypeUrl = QLabel("<a href='https://arrow.readthedocs.io/en/latest/guide.html#supported-tokens' "
-                                  "style='font-size:12px;color:#F09199;'>查看在线文档</a>")
-        self.dateTypeUrl.setOpenExternalLinks(True)
-
-        self.dataInfoLayout = QHBoxLayout()
-        self.dataInfoLayout.setSpacing(0)
-        self.dataInfoLayout.setContentsMargins(0, 0, 0, 0)
-        self.dataInfoLayout.setAlignment(Qt.AlignLeft)
-        self.dataInfoLayout.addWidget(self.dateTypeInfo)
-        self.dataInfoLayout.addWidget(self.dateTypeUrl)
-
-        self.dateInfoFrame = QFrame()
-        self.dateInfoFrame.setLayout(self.dataInfoLayout)
-
-        self.dateType = EditableComboBox(self)
-        self.dateType.setMinimumWidth(200)
-        self.dateType.setMaximumWidth(200)
-        self.dateType.addItems(["YYMMDD", "YYYY-MM", "MMM YYYY"])
-
-        self.dateTypeCard = self.settingCard(self.dateTypeTitle, self.dateInfoFrame, self.dateType, "full")
-
-        # 动画海报
-
-        self.posterFolderTitle = QLabel("动画海报")
-        self.posterFolderInfo = QLabel(posterFolder())
-
-        self.posterFolderButton = PushButton("打开", self, FluentIcon.FOLDER)
-        self.posterFolderButton.setFixedWidth(100)
-
-        self.posterFolderCard = self.settingCard(
-            self.posterFolderTitle, self.posterFolderInfo, self.posterFolderButton, "full")
-
-        # 日志
-
-        self.logFolderTitle = QLabel("日志")
-        self.logFolderInfo = QLabel(logFolder())
-
-        self.logFolderButton = PushButton("打开", self, FluentIcon.FOLDER)
-        self.logFolderButton.setFixedWidth(100)
-
-        self.logFolderCard = self.settingCard(
-            self.logFolderTitle, self.logFolderInfo, self.logFolderButton, "full")
-
-        # 按钮
-
-        self.applyButton = PrimaryPushButton("保存", self)
-        self.applyButton.setFixedWidth(120)
-        self.cancelButton = PushButton("取消", self)
-        self.cancelButton.setFixedWidth(120)
-
-        self.buttonLayout = QHBoxLayout()
-        self.buttonLayout.setSpacing(12)
-        self.buttonLayout.addStretch(0)
-        self.buttonLayout.addWidget(self.applyButton)
-        self.buttonLayout.addWidget(self.cancelButton)
-        self.buttonLayout.addStretch(0)
-
-        # 叠叠乐
-        layout = QVBoxLayout()
-        # layout = QVBoxLayout(this_window)
-        layout.setSpacing(14)
-        layout.setContentsMargins(24, 24, 24, 24)
-        layout.addWidget(self.renameTypeCard)
-        layout.addSpacing(-15)
-        layout.addWidget(self.renameTutorialCard)
-        layout.addWidget(self.dateTypeCard)
-        layout.addWidget(self.posterFolderCard)
-        layout.addWidget(self.logFolderCard)
-
-        self.ai_setting = AISetting()
-        layout.addWidget(self.ai_setting)
-        layout.addSpacing(12)
-        layout.addLayout(self.buttonLayout)
-
-        this_window.setLayout(layout)
-
-    def settingCard(self, card_title, card_info, card_func, size):
-        card_title.setObjectName("cardTitleLabel")
-        card_info.setObjectName("cardInfoLabel")
-
-        self.infoPart = QVBoxLayout()
-        self.infoPart.setSpacing(3)
-        self.infoPart.setContentsMargins(0, 0, 0, 0)
-        self.infoPart.addWidget(card_title)
-        self.infoPart.addWidget(card_info)
-
-        self.card = QHBoxLayout()
-        self.card.setContentsMargins(20, 16, 20, 16)
-        self.card.addLayout(self.infoPart, 0)
-        self.card.addStretch(0)
-        self.card.addWidget(card_func)
-
-        self.cardFrame = QFrame()
-        self.cardFrame.setLayout(self.card)
-
-        if size == "half":
-            self.cardFrame.setObjectName("cardFrameHalf")
-        elif size == "full":
-            self.cardFrame.setObjectName("cardFrameFull")
-
-        return self.cardFrame
-
-    def tutorialCard(self, card_token, card_explain):
+    def name_variable_block(self, card_token, card_explain):
         self.tokenLabel = QLabel(card_token)
         self.tokenLabel.setObjectName("lightLabel")
         self.explainLabel = QLabel(card_explain)
@@ -217,6 +118,37 @@ class SettingWindow(object):
         self.card.setLayout(self.tutorialLayout)
 
         return self.card
+
+
+class GeneralSetting(GroupHeaderCardWidget):
+    def __init__(self):
+        super().__init__()
+        self.setTitle("一般设置")
+        self.setBorderRadius(8)
+
+        # 命名格式
+        self.name_variable = EditableComboBox(self)
+        self.name_variable.setMinimumWidth(480)
+        self.name_variable.setMaximumWidth(400)
+        self.name_variable.addItems(["{fs_name_cn}/[{typecode}] [{release}] {name_jp}",
+                                     "{fs_name_cn}/[{score}] [{typecode}] [{release}] {name_jp}",
+                                     "{type}/{name} ({name_jp})",
+                                     "[{release}] {name_cn} ({release_week})"])
+        self.addGroup(InfoBarIcon.INFORMATION, "命名格式", "支持使用斜杠创建子文件夹", self.name_variable)
+
+        # 日期格式
+        self.date_variable = EditableComboBox(self)
+        self.date_variable.setFixedWidth(320)
+        self.date_variable.addItems(["YYMMDD", "YYYY-MM", "MMM YYYY"])
+        # self.dateTypeUrl = QLabel("<a href='https://arrow.readthedocs.io/en/latest/guide.html#supported-tokens' "
+        #                           "style='font-size:12px;color:#F09199;'>查看在线文档</a>")
+        # self.dateTypeUrl.setOpenExternalLinks(True)
+        self.addGroup(InfoBarIcon.INFORMATION, "日期格式", "指定 release_date 的显示格式", self.date_variable)
+
+        # 动画海报
+        self.open_poster_folder = PushButton("打开", self, FluentIcon.FOLDER)
+        self.open_poster_folder.setFixedWidth(100)
+        self.addGroup(InfoBarIcon.INFORMATION, "动画海报", posterFolder(), self.open_poster_folder)
 
 
 class AISetting(GroupHeaderCardWidget):

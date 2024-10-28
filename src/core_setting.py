@@ -5,7 +5,7 @@ from src.gui.components.Toast import Toast
 from src.gui.settingwindow import SettingWindow
 
 from src.module.api.openai import OpenAI
-from src.module.config import openFolder, posterFolder, logFolder, checkNameFormat, readConfig, writeConfig
+from src.module.config import openFolder, posterFolder, checkNameFormat, readConfig, writeConfig
 
 
 class MySettingWindow(QDialog, SettingWindow):
@@ -19,8 +19,7 @@ class MySettingWindow(QDialog, SettingWindow):
         self.toast = Toast(parent=self)
 
     def initConnect(self):
-        self.posterFolderButton.clicked.connect(lambda: openFolder(posterFolder()))
-        self.logFolderButton.clicked.connect(lambda: openFolder(logFolder()))
+        self.general_setting.open_poster_folder.clicked.connect(lambda: openFolder(posterFolder()))
         self.ai_setting.test.clicked.connect(self.testConnection)
         self.applyButton.clicked.connect(self.saveConfig)
         self.cancelButton.clicked.connect(lambda: self.close())
@@ -29,8 +28,8 @@ class MySettingWindow(QDialog, SettingWindow):
         """
         在UI中加载保存的配置项
         """
-        self.renameType.setText(readConfig("Format", "rename_format"))
-        self.dateType.setText(readConfig("Format", "date_format"))
+        self.general_setting.name_variable.setText(readConfig("Format", "rename_format"))
+        self.general_setting.date_variable.setText(readConfig("Format", "date_format"))
 
         self.ai_setting.usage.setCurrentIndex(int(readConfig("AI", "usage")))
         self.ai_setting.url.setText(readConfig("AI", "url"))
@@ -41,12 +40,12 @@ class MySettingWindow(QDialog, SettingWindow):
         """
         保存配置项
         """
-        error = checkNameFormat(self.renameType.currentText())  # 检查"命名格式"的合法性
+        error = checkNameFormat(self.general_setting.name_variable.currentText())  # 检查"命名格式"的合法性
         if error:
             self.toast.show("error", "命名格式错误", error)
         else:
-            writeConfig("Format", "rename_format", self.renameType.currentText())
-            writeConfig("Format", "date_format", self.dateType.currentText())
+            writeConfig("Format", "rename_format", self.general_setting.name_variable.currentText())
+            writeConfig("Format", "date_format", self.general_setting.date_variable.currentText())
 
             writeConfig("AI", "usage", str(self.ai_setting.usage.currentIndex()))
             writeConfig("AI", "url", self.ai_setting.url.text())
