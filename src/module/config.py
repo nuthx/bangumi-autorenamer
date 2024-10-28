@@ -142,7 +142,11 @@ def checkNameFormat(name_format):
 
 def checkConfigVersion():
     """
-    检测配置文件是否为2.1.1，如果不是则删除旧版文件，并重新创建配置文件
+    检测配置文件版本是否为最新，决定是否重置配置文件
+
+    更新历史：
+
+    2.1.1 加入AI选项
     """
     if readConfig("Application", "version") != "2.1.1":
         os.remove(configFile())
