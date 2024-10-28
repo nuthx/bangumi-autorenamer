@@ -134,7 +134,7 @@ class GeneralSetting(GroupHeaderCardWidget):
                                      "{fs_name_cn}/[{score}] [{typecode}] [{release}] {name_jp}",
                                      "{type}/{name_cn} ({name_jp})",
                                      "[{release}] {name_cn} ({release_week})"])
-        self.addGroup(InfoBarIcon.INFORMATION, "命名格式", "支持使用斜杠创建子文件夹", self.name_variable)
+        self.addGroup(FluentIcon.EDIT, "命名格式", "支持使用斜杠创建子文件夹", self.name_variable)
 
         # 日期格式
         self.date_variable = EditableComboBox(self)
@@ -143,12 +143,12 @@ class GeneralSetting(GroupHeaderCardWidget):
         # self.dateTypeUrl = QLabel("<a href='https://arrow.readthedocs.io/en/latest/guide.html#supported-tokens' "
         #                           "style='font-size:12px;color:#F09199;'>查看在线文档</a>")
         # self.dateTypeUrl.setOpenExternalLinks(True)
-        self.addGroup(InfoBarIcon.INFORMATION, "日期格式", "指定 release_date 的显示格式", self.date_variable)
+        self.addGroup(FluentIcon.EDIT, "日期格式", "指定 release_date 的显示格式", self.date_variable)
 
         # 动画海报
         self.open_poster_folder = PushButton("打开", self, FluentIcon.FOLDER)
         self.open_poster_folder.setFixedWidth(100)
-        self.addGroup(InfoBarIcon.INFORMATION, "动画海报", posterFolder(), self.open_poster_folder)
+        self.addGroup(FluentIcon.EDIT, "动画海报", posterFolder(), self.open_poster_folder)
 
 
 class AISetting(GroupHeaderCardWidget):
@@ -161,23 +161,23 @@ class AISetting(GroupHeaderCardWidget):
         self.usage = ComboBox()
         self.usage.setFixedWidth(320)
         self.usage.addItems(["不使用", "优先本地分析，失败时尝试 AI 分析", "优先 AI 分析，失败时尝试本地分析", "始终使用 AI 分析"])
-        self.addGroup(InfoBarIcon.INFORMATION, "启用 AI", "使用 AI 提取动画罗马名，获取更准确（或更离谱）的结果", self.usage)
+        self.addGroup(FluentIcon.APPLICATION, "启用 AI", "使用 AI 提取动画罗马名，获取更准确（或更离谱）的结果", self.usage)
 
         self.url = LineEdit()
         self.url.setFixedWidth(320)
         # self.url.setPlaceholderText("https://")
-        self.addGroup(InfoBarIcon.INFORMATION, "服务器地址", "输入 AI 服务器的域名地址", self.url)
+        self.addGroup(FluentIcon.APPLICATION, "服务器地址", "输入 AI 服务器的域名地址", self.url)
 
         self.token = LineEdit()
         self.token.setFixedWidth(320)
         # self.token.setPlaceholderText("sk-")
-        self.addGroup(InfoBarIcon.INFORMATION, "API Key", "输入用于连接 AI 服务器的授权 Token，通常以 sk 开头", self.token)
+        self.addGroup(FluentIcon.APPLICATION, "API Key", "输入用于连接 AI 服务器的授权 Token，通常以 sk 开头", self.token)
 
         self.model = EditableComboBox()
         self.model.setFixedWidth(320)
         self.model.addItems(["", "gpt-3.5-turbo", "gpt-4o", "gpt-4o-mini", "qwen2-1.5b-instruct", "hunyuan-lite"])
-        self.addGroup(InfoBarIcon.INFORMATION, "AI 模型", "选择你想使用的 AI 模型", self.model)
+        self.addGroup(FluentIcon.APPLICATION, "AI 模型", "选择你想使用的 AI 模型", self.model)
 
         self.test = PushButton("开始测试", self)
         self.test.setFixedWidth(100)
-        self.addGroup(InfoBarIcon.INFORMATION, "连接测试", "通过发送简短的请求，测试填写的 AI 服务器是否可用", self.test)
+        self.addGroup(FluentIcon.DEVELOPER_TOOLS, "连接测试", "通过发送简短的请求，测试填写的 AI 服务器是否可用", self.test)
