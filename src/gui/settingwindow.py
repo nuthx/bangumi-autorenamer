@@ -132,7 +132,7 @@ class GeneralSetting(GroupHeaderCardWidget):
         self.name_variable.setMaximumWidth(400)
         self.name_variable.addItems(["{fs_name_cn}/[{typecode}] [{release}] {name_jp}",
                                      "{fs_name_cn}/[{score}] [{typecode}] [{release}] {name_jp}",
-                                     "{type}/{name} ({name_jp})",
+                                     "{type}/{name_cn} ({name_jp})",
                                      "[{release}] {name_cn} ({release_week})"])
         self.addGroup(InfoBarIcon.INFORMATION, "命名格式", "支持使用斜杠创建子文件夹", self.name_variable)
 
